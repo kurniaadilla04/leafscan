@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <div class="text-red-500 font-bold">Hello World</div>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tea Leaf Maturity Detection</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .container {
+            max-width: 800px;
+            margin: 2rem auto;
+        }
+        .card {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            background: white;
+            transition: transform 0.3s ease;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+        }
+        .card-header {
+            background: #2c3e50;
+            color: white;
+            border-radius: 15px 15px 0 0 !important;
+            padding: 1.5rem;
+        }
+        .btn-primary {
+            background: #3498db;
+            border: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+        .btn-primary:hover {
+            background: #2980b9;
+            transform: translateY(-2px);
+        }
+        .btn-success {
+            background: #2ecc71;
+            border: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+        .btn-success:hover {
+            background: #27ae60;
+            transform: translateY(-2px);
+        }
+        .btn-danger {
+            background: #e74c3c;
+            border: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+        .btn-danger:hover {
+            background: #c0392b;
+            transform: translateY(-2px);
+        }
+        #preview {
+            max-width: 100%;
+            border-radius: 10px;
+            margin: 1rem 0;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        #result {
+            margin-top: 1rem;
+            padding: 1rem;
+            border-radius: 10px;
+            display: none;
+        }
+        .result-siap {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .result-belum {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .loading {
+            display: none;
+            text-align: center;
+            margin: 1rem 0;
+        }
+        .spinner-border {
+            width: 3rem;
+            height: 3rem;
+        }
+        .camera-container {
+            position: relative;
+            width: 100%;
+            max-width: 640px;
+            margin: 0 auto;
+        }
+        #video {
+            width: 100%;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .camera-controls {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 10px;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 10px;
+            border-radius: 20px;
+        }
+        .camera-controls button {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            border: none;
+            background: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .camera-controls button:hover {
+            transform: scale(1.1);
+        }
+        .camera-controls button:active {
+            transform: scale(0.95);
+        }
+        .modal-content {
+            border-radius: 15px;
+            border: none;
+        }
+        .modal-header {
+            background: #2c3e50;
+            color: white;
+            border-radius: 15px 15px 0 0;
+            padding: 1.5rem;
+        }
+        .modal-body {
+            padding: 2rem;
+        }
+        .modal-footer {
+            border-top: none;
+            padding: 1.5rem;
+        }
+        .camera-feed {
+            position: relative;
+            width: 100%;
+            height: 0;
+            padding-bottom: 75%;
+            overflow: hidden;
+            border-radius: 10px;
+            background: #000;
+        }
+        .camera-feed video {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .camera-actions {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        .camera-actions button {
+            min-width: 120px;
+        }
+        .camera-status {
+            text-align: center;
+            margin-top: 1rem;
+            color: #666;
+        }
+        .camera-error {
+            color: #dc3545;
+            text-align: center;
+            margin-top: 1rem;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="card">
+            <div class="card-header text-center">
+                <h2 class="mb-0">Tea Leaf Maturity Detection</h2>
+            </div>
+            <div class="card-body">
+                <div class="text-center mb-4">
+                    <button class="btn btn-primary me-2" onclick="document.getElementById('fileInput').click()">
+                        <i class="fas fa-upload"></i> Upload Gambar
+                    </button>
+                    <button class="btn btn-success" onclick="openCamera()">
+                        <i class="fas fa-camera"></i> Buka Kamera
+                    </button>
+                    <input type="file" id="fileInput" accept="image/*" style="display: none" onchange="handleFileSelect(event)">
+                </div>
+
+                <div class="camera-container" style="display: none;">
+                    <video id="video" autoplay playsinline></video>
+                    <div class="camera-controls">
+                        <button onclick="captureImage()" title="Ambil Foto">
+                            <i class="fas fa-camera"></i>
+                        </button>
+                        <button onclick="closeCamera()" title="Tutup Kamera">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <img id="preview" style="display: none;">
+                
+                <div class="loading">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <p class="mt-2">Memproses gambar...</p>
+                </div>
+
+                <div id="result"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Camera Modal -->
+    <div class="modal fade" id="cameraModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Kamera</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="camera-feed">
+                        <video id="modalVideo" autoplay playsinline></video>
+                    </div>
+                    <div class="camera-status">Memulai kamera...</div>
+                    <div class="camera-error"></div>
+                    <div class="camera-actions">
+                        <button class="btn btn-success" onclick="captureImage()">
+                            <i class="fas fa-camera"></i> Ambil Foto
+                        </button>
+                        <button class="btn btn-danger" onclick="closeCamera()">
+                            <i class="fas fa-times"></i> Tutup
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://kit.fontawesome.com/your-fontawesome-kit.js"></script>
+    <script>
+        let stream = null;
+        const cameraModal = new bootstrap.Modal(document.getElementById('cameraModal'));
+
+        async function openCamera() {
+            try {
+                stream = await navigator.mediaDevices.getUserMedia({ 
+                    video: { 
+                        facingMode: 'environment',
+                        width: { ideal: 1280 },
+                        height: { ideal: 720 }
+                    } 
+                });
+                
+                const video = document.getElementById('modalVideo');
+                video.srcObject = stream;
+                cameraModal.show();
+                
+                document.querySelector('.camera-status').textContent = 'Kamera siap';
+                document.querySelector('.camera-error').style.display = 'none';
+            } catch (err) {
+                console.error('Error accessing camera:', err);
+                document.querySelector('.camera-status').textContent = '';
+                document.querySelector('.camera-error').textContent = 'Tidak dapat mengakses kamera. Pastikan kamera tidak digunakan oleh aplikasi lain.';
+                document.querySelector('.camera-error').style.display = 'block';
+            }
+        }
+
+        function closeCamera() {
+            if (stream) {
+                stream.getTracks().forEach(track => track.stop());
+                stream = null;
+            }
+            cameraModal.hide();
+        }
+
+        function captureImage() {
+            const video = document.getElementById('modalVideo');
+            const canvas = document.createElement('canvas');
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            canvas.getContext('2d').drawImage(video, 0, 0);
+            
+            canvas.toBlob(blob => {
+                const file = new File([blob], 'camera-capture.jpg', { type: 'image/jpeg' });
+                handleFileSelect({ target: { files: [file] } });
+                closeCamera();
+            }, 'image/jpeg');
+        }
+
+        function handleFileSelect(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const preview = document.getElementById('preview');
+                    preview.src = e.target.result;
+                    preview.style.display = 'block';
+                    document.querySelector('.camera-container').style.display = 'none';
+                    predictImage(file);
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        async function predictImage(file) {
+            const formData = new FormData();
+            formData.append('image', file);
+
+            document.querySelector('.loading').style.display = 'block';
+            document.getElementById('result').style.display = 'none';
+
+            try {
+                const response = await fetch('http://localhost:5000/api/predict', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+                const result = document.getElementById('result');
+                
+                if (data.prediction === 'siap_petik') {
+                    result.className = 'result-siap';
+                    result.innerHTML = `
+                        <h4 class="text-center">Daun Teh Siap Dipetik</h4>
+                        <p class="text-center mb-0">Daun teh sudah mencapai tingkat kematangan yang optimal untuk dipetik.</p>
+                    `;
+                } else {
+                    result.className = 'result-belum';
+                    result.innerHTML = `
+                        <h4 class="text-center">Daun Teh Belum Siap Dipetik</h4>
+                        <p class="text-center mb-0">Daun teh masih membutuhkan waktu untuk mencapai tingkat kematangan yang optimal.</p>
+                    `;
+                }
+                
+                result.style.display = 'block';
+            } catch (error) {
+                console.error('Error:', error);
+                const result = document.getElementById('result');
+                result.className = 'result-belum';
+                result.innerHTML = `
+                    <h4 class="text-center">Error</h4>
+                    <p class="text-center mb-0">Terjadi kesalahan saat memproses gambar. Silakan coba lagi.</p>
+                `;
+                result.style.display = 'block';
+            } finally {
+                document.querySelector('.loading').style.display = 'none';
+            }
+        }
+
+        // Cleanup when modal is closed
+        document.getElementById('cameraModal').addEventListener('hidden.bs.modal', function () {
+            closeCamera();
+        });
+    </script>
+</body>
+</html> 
