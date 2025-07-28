@@ -256,7 +256,7 @@ def main():
         'scaler': scaler,
         'categories': ['siap_petik', 'belum_siap_petik', 'non_tea']
     }
-    joblib.dump(model_data, 'knn_model.pklv4')
+    joblib.dump(model_data, 'knn_model.pklv2')
     logger.info("Model saved successfully!")
 
 def simple_knn_hsv_example():
@@ -346,7 +346,7 @@ if __name__ == "__main__":
         'scaler': scaler,
         'categories': ['siap_petik', 'belum_siap_petik', 'non_tea']
     }
-    joblib.dump(model_data, 'knn_model.pklv4')
+    joblib.dump(model_data, 'knn_model.pklv2')
     logger.info("Model saved successfully!")
 
 

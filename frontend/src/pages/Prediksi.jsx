@@ -60,16 +60,24 @@ const Prediksi = () => {
       }
 
       const data = await response.json();
+      console.log("Confidence:", data.confidence);
+      <p className="text-sm text-gray-600 italic">Akurasi: {(data.confidence * 100).toFixed(2)}%</p>
 
-      if (data.class === "non_tea") {
-        setPrediction("Gambar ini bukan daun teh, silakan ganti gambar.");
-      } else if (data.class === "siap_petik") {
-        setPrediction("Siap Petik");
-      } else if (data.class === "belum_siap_petik") {
-        setPrediction("Belum Siap Petik");
-      } else {
-        setPrediction("Hasil tidak dikenali");
-      }
+
+      if (data.status === "non_tea") {
+  setPrediction("🚫 Gambar ini *bukan* daun teh.");
+} else if (data.status === "daun_teh") {
+  if (data.kematangan === "siap_petik") {
+    setPrediction("Siap Petik");
+  } else if (data.kematangan === "belum_siap_petik") {
+    setPrediction("Belum Siap Petik");
+  } else {
+    setPrediction("Hasil tidak dikenali");
+  }
+} else {
+  setPrediction("Hasil tidak dikenali");
+}
+
     } catch (err) {
       setPrediction(
         "Terjadi kesalahan saat memproses gambar. Silakan coba lagi."
@@ -185,12 +193,63 @@ const Prediksi = () => {
 
               {/* Hasil Prediksi */}
               {prediction && (
-                <div className="mt-6 p-4 bg-green-100 border border-green-300 rounded-lg text-green-800 font-semibold text-center shadow">
-                  Hasil: {prediction}
+  <div
+    className={`mt-6 px-6 py-5 rounded-md shadow-lg flex items-start space-x-4 transition-opacity duration-500 ease-in-out
+      ${prediction === "Belum Siap Petik" ? "bg-yellow-100 border-l-4 border-yellow-500" : ""}
+      ${prediction === "Siap Petik" ? "bg-green-100 border-l-4 border-green-500" : ""}
+      ${prediction === "🚫 Gambar ini *bukan* daun teh." ? "bg-red-100 border-l-4 border-red-500" : ""}
+    `}
+    style={{ opacity: prediction ? 1 : 0 }}
+  >
+    <div
+      className={`text-3xl
+        ${prediction === "Belum Siap Petik" ? "text-yellow-500" : ""}
+        ${prediction === "Siap Petik" ? "text-green-500" : ""}
+        ${prediction === "🚫 Gambar ini *bukan* daun teh." ? "text-red-500" : ""}
+      `}
+    >
+      {prediction === "Belum Siap Petik" && "⏳"}
+      {prediction === "Siap Petik" && "🌿"}
+      {prediction === "🚫 Gambar ini *bukan* daun teh." && "❌"}
+    </div>
+    <div>
+      <h3
+        className={`text-lg font-semibold
+          ${prediction === "Belum Siap Petik" ? "text-yellow-800" : ""}
+          ${prediction === "Siap Petik" ? "text-green-800" : ""}
+          ${prediction === "🚫 Gambar ini *bukan* daun teh." ? "text-red-800" : ""}
+        `}
+      >
+        Hasil Prediksi:
+      </h3>
+
+      {prediction === "Belum Siap Petik" && (
+        <p className="text-gray-700">
+          Daun teh <em>belum siap petik</em>. Perlu waktu lebih lama hingga matang.
+        </p>
+      )}
+      {prediction === "Siap Petik" && (
+        <p className="text-gray-700">
+          Daun teh <em>sudah siap untuk dipetik</em>. Silakan lanjutkan proses panen 🍃
+        </p>
+      )}
+      {prediction === "🚫 Gambar ini *bukan* daun teh." && (
+        <p className="text-gray-700">
+          Gambar yang diunggah <strong>bukan daun teh</strong>. Silakan unggah gambar yang valid 🌱
+        </p>
+      )}
+      {prediction !== "Belum Siap Petik" &&
+        prediction !== "Siap Petik" &&
+        prediction !== "🚫 Gambar ini *bukan* daun teh." && (
+          <p className="text-gray-700">{prediction}</p>
+        )}
+    
+                  </div>
                 </div>
               )}
             </div>
           </div>
+
 
           {/* Kanan: Gambar Petani (hanya desktop) */}
           <div className="hidden md:flex flex-1 justify-center md:justify-end">
