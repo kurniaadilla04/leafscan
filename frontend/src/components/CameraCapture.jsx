@@ -1,31 +1,28 @@
 // src/components/CameraCapture.jsx
-import React, { useRef, useState } from 'react';
+import React, { useRef } from 'react';
 
 const CameraCapture = ({ onCapture, onClose }) => {
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
-  const [captured, setCaptured] = useState(null);
 
-  // Aktifkan kamera
-  const startCamera = async () => {
-    const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-    videoRef.current.srcObject = stream;
-    videoRef.current.play();
-  };
+  React.useEffect(() => {
+    navigator.mediaDevices
+      .getUserMedia({ video: true })
+      .then((stream) => {
+        videoRef.current.srcObject = stream;
+      });
+    return () => {
+      if (videoRef.current && videoRef.current.srcObject) {
+        videoRef.current.srcObject.getTracks().forEach((track) => track.stop());
+      }
+    };
+  }, []);
 
-  // Tangkap gambar
-  const takePicture = () => {
-    const video = videoRef.current;
-    const canvas = canvasRef.current;
-    const context = canvas.getContext('2d');
-
-    canvas.width = 100; // ukuran sesuai model
-    canvas.height = 100;
-    context.drawImage(video, 0, 0, canvas.width, canvas.height);
-
-    const imageData = canvas.toDataURL('image/jpeg');
-    setCaptured(imageData);
-    if (onCapture) onCapture(imageData);
+  const handleCapture = () => {
+    const context = canvasRef.current.getContext('2d');
+    context.drawImage(videoRef.current, 0, 0, 320, 240);
+    const image = canvasRef.current.toDataURL('image/jpeg');
+    onCapture(image);
   };
 
   return (
@@ -41,21 +38,22 @@ const CameraCapture = ({ onCapture, onClose }) => {
           </button>
         </div>
         <div className="flex flex-col items-center">
-          {!captured && (
-            <>
-              <video ref={videoRef} className="w-[200px] h-[150px] rounded" />
-              <button onClick={startCamera} className="mt-2 bg-sky-500 text-white px-4 py-2 rounded">
-                Aktifkan Kamera
-              </button>
-              <button onClick={takePicture} className="mt-2 bg-green-500 text-white px-4 py-2 rounded">
-                Ambil Gambar
-              </button>
-            </>
-          )}
-          {captured && (
-            <img src={captured} alt="Preview" className="mt-4 w-[100px] h-[100px] rounded border" />
-          )}
-          <canvas ref={canvasRef} style={{ display: 'none' }} />
+          <video ref={videoRef} width={320} height={240} autoPlay className="rounded" />
+          <canvas ref={canvasRef} width={320} height={240} style={{ display: 'none' }} />
+          <div className="flex gap-2 mt-4">
+            <button
+              onClick={handleCapture}
+              className="px-4 py-2 bg-green-600 text-white rounded"
+            >
+              Ambil Gambar
+            </button>
+            <button
+              onClick={onClose}
+              className="px-4 py-2 bg-gray-400 text-white rounded"
+            >
+              Tutup
+            </button>
+          </div>
         </div>
       </div>
     </div>
