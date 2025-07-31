@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import CameraCapture from "../components/cameracapture";
+import CameraCapture from "../components/CameraCapture";
 import { Link } from "react-router-dom";
 import Footer from "../components/Footer";
 
