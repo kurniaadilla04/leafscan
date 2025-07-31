@@ -75,12 +75,17 @@ function Beranda() {
               "Membantu Pemetikan Daun Teh secara Efisien"
             </p>
             <div className="flex flex-col sm:flex-row justify-center md:justify-start gap-4 sm:gap-6 mt-10 sm:mt-4">
-              <a
-                href="#tentang-website"
-                className="px-8 py-3 rounded-xl font-semibold text-base sm:text-lg border-2 border-[#10b981] text-[#10b981] bg-white hover:bg-[#f0fdf4] hover:shadow-lg text-center"
+              <button
+                onClick={() => {
+                  document.getElementById('tentang-website').scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start'
+                  });
+                }}
+                className="px-8 py-3 rounded-xl font-semibold text-base sm:text-lg border-2 border-[#10b981] text-[#10b981] bg-white hover:bg-[#f0fdf4] hover:shadow-lg text-center cursor-pointer"
               >
                 Ayo Jelajahi
-              </a>
+              </button>
               <Link
                 to="/prediksi"
                 className="px-8 py-3 rounded-xl font-semibold text-base sm:text-lg text-white text-center"

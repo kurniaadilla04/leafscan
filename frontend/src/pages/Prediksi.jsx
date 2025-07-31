@@ -88,7 +88,8 @@ const Prediksi = () => {
 
   return (
     <div className="min-h-screen bg-white font-poppins flex flex-col">
-      <div className="flex-1 w-full relative px-4 sm:px-6 md:px-10 py-16 sm:py-8 overflow-hidden">
+      <div class="relative w-full flex-1 overflow-hidden px-4 pb-16 pt-0">
+
         {/* Background Petani untuk Mobile */}
         <div
           className="absolute inset-0 md:hidden bg-[url('/assets/petani.png')] bg-no-repeat bg-cover bg-bottom opacity-10 z-0"
